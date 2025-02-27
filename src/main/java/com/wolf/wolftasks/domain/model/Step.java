@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 public class Step {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
     @NotBlank
     private String title;
     private boolean finished;

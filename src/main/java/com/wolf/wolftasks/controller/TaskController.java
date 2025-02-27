@@ -2,39 +2,48 @@ package com.wolf.wolftasks.controller;
 
 import com.wolf.wolftasks.domain.dto.TaskDTO;
 import com.wolf.wolftasks.service.TaskService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RestController
-@RequestMapping("/tasks")
+@RequestMapping("/task")
 public class TaskController {
 
-    @Autowired
-    private TaskService service;
+    private final TaskService service;
+
+    public TaskController(TaskService service) {
+        this.service = service;
+    }
 
     @GetMapping
-    public List<TaskDTO> getTasks(){
+    public ResponseEntity<List<TaskDTO>> getTasks() {
         return service.getTasks();
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<TaskDTO> getTask(@PathVariable Long id){
+    public ResponseEntity<Optional<TaskDTO>> getTask(@PathVariable String id) {
         return service.getTask(id);
     }
+
     @PostMapping
-    public ResponseEntity<TaskDTO> createTask(){
-        return service.createTask();
+    public ResponseEntity<TaskDTO> createTask(@RequestBody @Valid TaskDTO dto, UriComponentsBuilder uri) {
+        return service.createTask(dto, uri);
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<TaskDTO> deleteTask(@PathVariable Long id){
+    public ResponseEntity<Void> deleteTask(@PathVariable String id) {
         return service.deleteTask(id);
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id){
-        return service.updateTask(id);
+    public ResponseEntity<TaskDTO> updateTask(@PathVariable String id, @RequestBody @Valid TaskDTO dto) {
+        return service.updateTask(id, dto);
     }
 }
