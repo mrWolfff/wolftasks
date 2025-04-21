@@ -5,7 +5,6 @@ import com.wolf.wolftasks.domain.model.Project;
 import com.wolf.wolftasks.domain.model.User;
 import com.wolf.wolftasks.repository.ProjectRepository;
 import com.wolf.wolftasks.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -29,35 +28,68 @@ public class ProjectService {
     }
 
     public ResponseEntity<List<ProjectDTO>> getProjects() {
-        return ResponseEntity.ok(repository.findAll()
+        List<ProjectDTO> projects = repository.findAll()
                 .stream()
                 .map(ProjectDTO::fromEntity)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(projects);
     }
 
     public ResponseEntity<Optional<ProjectDTO>> getProject(String id) {
-        return ResponseEntity.ok(Optional.of(ProjectDTO
-                .fromEntity(repository.findById(id)
-                        .orElseThrow(EntityNotFoundException::new))));
+        Project project = repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Projeto não encontrado"));
+        return ResponseEntity.ok(Optional.of(ProjectDTO.fromEntity(project)));
     }
 
     public ResponseEntity<ProjectDTO> createProject(ProjectDTO dto, UriComponentsBuilder uri) {
-        User creator = userRepository.findById(dto.creator().getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Criador não encontrado"));
-        User responsible = userRepository.findById(dto.responsible().getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Responsável não encontrado"));
         Project project = new Project(dto);
-        project.setCreator(creator);
-        project.setResponsible(responsible);
-        URI address = uri.path("project/{id|}").buildAndExpand(project.getId()).toUri();
-        return ResponseEntity.created(address).body(ProjectDTO.fromEntity(repository.save(project)));
+        if (dto.creatorId() != null && !dto.creatorId().isEmpty()) {
+            User creator = userRepository.findById(dto.creatorId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Criador não encontrado"));
+            project.setCreator(creator);
+        }
+        if (dto.creatorId() != null && !dto.creatorId().isEmpty()) {
+            User responsible = userRepository.findById(dto.responsibleId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Responsável não encontrado"));
+            project.setResponsible(responsible);
+        }
+
+        Project savedProject = repository.save(project); // Salva antes de obter o ID
+        URI address = uri.path("/project/{id}").buildAndExpand(savedProject.getId()).toUri();
+        return ResponseEntity.created(address).body(ProjectDTO.fromEntity(savedProject));
     }
 
     public ResponseEntity<Void> deleteProject(String id) {
-        return ResponseEntity.noContent().build();
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 
     public ResponseEntity<ProjectDTO> updateProject(String id, ProjectDTO dto) {
-        return ResponseEntity.noContent().build();
+        return repository.findById(id)
+                .map(project -> {
+                    project.setDescription(dto.description());
+                    project.setStatus(dto.status());
+                    project.setFinished(dto.finished());
+
+                    // Atualiza responsáveis se necessário
+                    if (dto.creatorId() != null) {
+                        User creator = userRepository.findById(dto.creatorId())
+                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Criador não encontrado"));
+                        project.setCreator(creator);
+                    }
+
+                    if (dto.responsibleId() != null) {
+                        User responsible = userRepository.findById(dto.responsibleId())
+                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Responsável não encontrado"));
+                        project.setResponsible(responsible);
+                    }
+
+                    Project updatedProject = repository.save(project);
+                    return ResponseEntity.ok(ProjectDTO.fromEntity(updatedProject));
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

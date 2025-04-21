@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 @RestController
@@ -28,7 +27,7 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<TaskDTO>> getTask(@PathVariable String id) {
+    public ResponseEntity<TaskDTO> getTask(@PathVariable String id) {
         return service.getTask(id);
     }
 

@@ -1,34 +1,44 @@
 package com.wolf.wolftasks.domain.model;
 
 import com.wolf.wolftasks.domain.dto.ProjectDTO;
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
+@Document(collection = "projects")
 public class Project {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
+
     @NotBlank
     private String title;
+
     private String description;
+
     @NotNull
     private StatusProject status;
+
     private LocalDateTime creationDate;
     private LocalDateTime finishDate;
+
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @DBRef
     private User creator;
+
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @DBRef
     private User responsible;
+
     @NotNull
     private boolean finished;
-    @OneToMany(fetch = FetchType.LAZY)
+
+    @DBRef
     private List<Task> tasks;
 
     public Project(ProjectDTO dto) {
@@ -39,9 +49,7 @@ public class Project {
         this.finished = dto.finished();
     }
 
-    public Project() {
-
-    }
+    public Project() {}
 
     public String getId() {
         return id;
@@ -121,5 +129,10 @@ public class Project {
 
     public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
+    }
+
+    public void addTask(Task task) {
+        this.tasks.add(task);
+        task.setProject(this);
     }
 }

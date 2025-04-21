@@ -11,11 +11,14 @@ public record TaskDTO(String id,
                       String projectId,
                       @JsonFormat(pattern = "dd-MM-yyyy'T'HH:mm:ss")
                       LocalDateTime creationDate,
-                      boolean finished) {
+                      boolean finished,
+                      String creatorId,
+                      String responsibleId) {
 
     public static TaskDTO fromEntity(Task task){
         return new TaskDTO(task.getId(), task.getTitle(),
                 task.getDescription(), task.getProject().getId(),
-                task.getCreationDate(), task.isFinished());
+                task.getCreationDate(), task.isFinished(),task.getCreator().getId(),
+                task.getResponsible().getId());
     }
 }
