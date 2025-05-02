@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import api from '../services/api';
-import Header from '../components/Header';
-import TaskModal from '../components/TaskModal';
-import ProjectModal from '../components/ProjectModal';
+import api from '../services/api.js';
+import Header from '../components/Header.jsx';
+import TaskModal from '../components/TaskModal.jsx';
+import ProjectModal from '../components/ProjectModal.jsx';
 
 export default function Home() {
     const [tasks, setTasks] = useState([]);
