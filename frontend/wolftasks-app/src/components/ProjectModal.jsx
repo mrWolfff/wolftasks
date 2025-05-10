@@ -6,7 +6,7 @@ export default function ProjectModal({ isOpen, onClose }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await api.post('/projeto', { name });
+        await api.post('/project', { name });
         onClose();
     };
 
