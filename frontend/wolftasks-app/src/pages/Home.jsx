@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import api from '../services/api.js';
 import Header from '../components/Header.jsx';
 import TaskModal from '../components/TaskModal.jsx';
@@ -8,33 +8,7 @@ export default function Home() {
     const [tasks, setTasks] = useState([]);
     const [taskModalOpen, setTaskModalOpen] = useState(false);
     const [projectModalOpen, setProjectModalOpen] = useState(false);
-    const [darkMode, setDarkMode] = useState(false);
-
-    // Busca o tema atual ao montar o componente
-    useEffect(() => {
-        const savedTheme = localStorage.getItem('theme');
-        const isDarkMode = savedTheme === 'dark';
-        setDarkMode(isDarkMode);
-
-        // Aplique a classe ao HTML com base no tema salvo
-        if (isDarkMode) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    }, []);
-
-    // Atualiza a classe no HTML e salva a preferência quando o darkMode muda
-    useEffect(() => {
-        if (darkMode) {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-        }
-        console.log("Dark mode is:", darkMode);
-    }, [darkMode]);
+    const [activeTab, setActiveTab] = useState('Dashboard');
 
     const fetchTasks = async () => {
         try {
@@ -46,57 +20,68 @@ export default function Home() {
     };
 
     useEffect(() => {
-        fetchTasks();
-    }, []);
-
-    // Função para alternar o modo escuro
-    const toggleDarkMode = () => {
-        setDarkMode(prev => !prev);
-    };
+        if (activeTab === 'Tasks') {
+            fetchTasks();
+        }
+    }, [activeTab]);
 
     return (
-        <div className="min-h-screen w-full bg-black shadow-lg md:shadow-2xl">
-            <Header
-                onOpenTaskModal={() => setTaskModalOpen(true)}
-                onOpenProjectModal={() => setProjectModalOpen(true)}
-                onToggleTheme={toggleDarkMode}
-                darkMode={darkMode}
-            />
+        <div className="flex h-screen bg-gray-900 text-white">
+            {/* Sidebar fixa */}
+            <aside className="w-60 bg-gray-800 p-4 flex flex-col border-r border-gray-700">
+                <h2 className="text-xl font-semibold mb-6">Menu</h2>
+                <nav className="flex flex-col space-y-3">
+                    {['Dashboard', 'Projects', 'Tasks'].map(item => (
+                        <button
+                            key={item}
+                            onClick={() => setActiveTab(item)}
+                            className={`text-left px-3 py-2 rounded transition 
+                                ${activeTab === item ? 'bg-gray-700 font-bold' : 'hover:bg-gray-700'}`}
+                        >
+                            {item}
+                        </button>
+                    ))}
+                </nav>
+            </aside>
 
-            {/* Conteúdo principal */}
-            <div className="flex flex-grow">
-                {/* Sidebar */}
-                <aside className="w-1/5 bg-gray-800 text-black dark:text-white p-4 min-h-screen shadow-lg md:shadow-2xl">
-                    <ul className="space-y-4">
-                        {['Dashboard', 'Projects', 'Tasks'].map(item => (
-                            <li
-                                key={item}
-                                className="p-2 rounded cursor-pointer transition-colors duration-300
-                                           bg-white dark:bg-gray-800 text-black dark:text-white
-                                           hover:bg-blue-100 dark:hover:bg-blue-700"
-                            >
-                                {item}
-                            </li>
-                        ))}
-                    </ul>
-                </aside>
+            {/* Conteúdo */}
+            <div className="flex-1 flex flex-col">
+                {/* Cabeçalho */}
+                <Header
+                    onOpenTaskModal={() => setTaskModalOpen(true)}
+                    onOpenProjectModal={() => setProjectModalOpen(true)}
+                />
 
-                {/* Main Content */}
-                <main className="w-4/5 p-6 bg-white dark:bg-black text-black dark:text-white">
-                    {tasks.length > 0 ? (
-                        <div className="grid gap-4">
-                            {tasks.map(task => (
-                                <div
-                                    key={task.id}
-                                    className="p-4 bg-gray-50 dark:bg-gray-800 text-black dark:text-white rounded shadow-md
-                                               hover:shadow-lg transition-all duration-300"
-                                >
-                                    <h3 className="text-lg font-semibold">{task.title}</h3>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="text-black dark:text-white">Nenhuma task encontrada.</p>
+                {/* Breadcrumb */}
+                <div className="bg-gray-850 border-b border-gray-700 px-6 py-3 text-sm text-gray-300">
+                    Your work / <span className="text-white">{activeTab}</span>
+                </div>
+
+                {/* Conteúdo principal */}
+                <main className="flex-1 overflow-y-auto p-6">
+                    {activeTab === 'Dashboard' && (
+                        <div className="text-lg">Bem-vindo ao painel principal 🐺</div>
+                    )}
+
+                    {activeTab === 'Projects' && (
+                        <div className="text-lg">Aqui estarão seus projetos futuramente...</div>
+                    )}
+
+                    {activeTab === 'Tasks' && (
+                        tasks.length > 0 ? (
+                            <div className="grid gap-4">
+                                {tasks.map(task => (
+                                    <div
+                                        key={task.id}
+                                        className="p-4 bg-gray-800 rounded shadow hover:shadow-lg transition-all"
+                                    >
+                                        <h3 className="text-lg font-semibold">{task.title}</h3>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-gray-400">Nenhuma task encontrada.</p>
+                        )
                     )}
                 </main>
             </div>
@@ -106,7 +91,7 @@ export default function Home() {
                 isOpen={taskModalOpen}
                 onClose={() => {
                     setTaskModalOpen(false);
-                    fetchTasks();
+                    fetchTasks(); // recarrega tasks após salvar
                 }}
             />
             <ProjectModal
