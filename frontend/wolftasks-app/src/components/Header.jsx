@@ -1,6 +1,7 @@
 export default function Header({ onOpenTaskModal, onOpenProjectModal }) {
     return (
         <header className="flex justify-between items-center px-6 py-4 bg-gray-800 border-b border-gray-700 shadow">
+
             <h1 className="text-2xl font-bold text-white">🐺 WolfTasks</h1>
             <div className="flex space-x-3">
                 <button

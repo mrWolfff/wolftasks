@@ -4,7 +4,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api.js';
-import { useClickOutside } from '../hooks/useClickOutside';
 import UserSelectModal from './UserSelectModal';
 
 export default function ProjectModal({ isOpen, onClose }) {
@@ -17,12 +16,12 @@ export default function ProjectModal({ isOpen, onClose }) {
     const [users, setUsers] = useState([]);
 
     const modalRef = useRef(null);
-    useClickOutside(modalRef, onClose);
+    /*useClickOutside(modalRef, onClose);*/
 
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const res = await api.get('/users');
+                const res = await api.get('/user');
                 setUsers(res.data);
             } catch (err) {
                 console.error('Erro ao buscar usuários:', err);
@@ -143,7 +142,10 @@ export default function ProjectModal({ isOpen, onClose }) {
             <UserSelectModal
                 isOpen={showCreatorModal}
                 onClose={() => setShowCreatorModal(false)}
-                onSelect={(user) => setCreatorId(user)}
+                onSelect={(user) =>  {
+                    setCreatorId(user);
+                    setShowCreatorModal(false);
+                }}
             />
             <UserSelectModal
                 isOpen={showResponsibleModal}

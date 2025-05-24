@@ -1,5 +1,6 @@
 package com.wolf.wolftasks.domain.model;
 
+import com.wolf.wolftasks.domain.dto.CreateProjectDTO;
 import com.wolf.wolftasks.domain.dto.ProjectDTO;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -50,6 +51,14 @@ public class Project {
     }
 
     public Project() {}
+
+    public Project(CreateProjectDTO dto) {
+        this.title = dto.title();
+        this.description = dto.description();
+        this.creationDate = LocalDateTime.now();
+        this.status = StatusProject.CREATED;
+        this.finished = false;
+    }
 
     public String getId() {
         return id;

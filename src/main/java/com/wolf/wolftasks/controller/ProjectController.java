@@ -1,5 +1,6 @@
 package com.wolf.wolftasks.controller;
 
+import com.wolf.wolftasks.domain.dto.CreateProjectDTO;
 import com.wolf.wolftasks.domain.dto.ProjectDTO;
 import com.wolf.wolftasks.service.ProjectService;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,7 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO dto, UriComponentsBuilder uri) {
+    public ResponseEntity<ProjectDTO> createProject(@RequestBody CreateProjectDTO dto, UriComponentsBuilder uri) {
         return service.createProject(dto, uri);
     }
 

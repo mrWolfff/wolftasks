@@ -1,5 +1,6 @@
 package com.wolf.wolftasks.service;
 
+import com.wolf.wolftasks.domain.dto.CreateProjectDTO;
 import com.wolf.wolftasks.domain.dto.ProjectDTO;
 import com.wolf.wolftasks.domain.model.Project;
 import com.wolf.wolftasks.domain.model.User;
@@ -41,7 +42,7 @@ public class ProjectService {
         return ResponseEntity.ok(Optional.of(ProjectDTO.fromEntity(project)));
     }
 
-    public ResponseEntity<ProjectDTO> createProject(ProjectDTO dto, UriComponentsBuilder uri) {
+    public ResponseEntity<ProjectDTO> createProject(CreateProjectDTO dto, UriComponentsBuilder uri) {
         Project project = new Project(dto);
         if (dto.creatorId() != null && !dto.creatorId().isEmpty()) {
             User creator = userRepository.findById(dto.creatorId())

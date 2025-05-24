@@ -12,7 +12,7 @@ export default function UserSelectModal({ isOpen, onClose, onSelect }) {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const res = await api.get('/users');
+                const res = await api.get('/user');
                 setUsers(res.data);
             } catch (err) {
                 console.error('Erro ao buscar usuários:', err);

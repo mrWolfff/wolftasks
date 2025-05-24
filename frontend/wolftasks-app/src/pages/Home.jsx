@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api.js';
 import Header from '../components/Header.jsx';
+import KanbanBoard from "../components/KanbanBoard.jsx";
 import TaskModal from '../components/TaskModal.jsx';
 import ProjectModal from '../components/ProjectModal.jsx';
+import ProjectList from "../components/ProjectList.jsx";
 
 export default function Home() {
     const [tasks, setTasks] = useState([]);
@@ -26,7 +28,7 @@ export default function Home() {
     }, [activeTab]);
 
     return (
-        <div className="flex h-screen bg-gray-900 text-white">
+        <div className="flex w-screen h-screen bg-gray-900 text-white">
             {/* Sidebar fixa */}
             <aside className="w-60 bg-gray-800 p-4 flex flex-col border-r border-gray-700">
                 <h2 className="text-xl font-semibold mb-6">Menu</h2>
@@ -60,11 +62,12 @@ export default function Home() {
                 {/* Conteúdo principal */}
                 <main className="flex-1 overflow-y-auto p-6">
                     {activeTab === 'Dashboard' && (
-                        <div className="text-lg">Bem-vindo ao painel principal 🐺</div>
+                        <KanbanBoard/>
+
                     )}
 
                     {activeTab === 'Projects' && (
-                        <div className="text-lg">Aqui estarão seus projetos futuramente...</div>
+                        <ProjectList/>
                     )}
 
                     {activeTab === 'Tasks' && (
