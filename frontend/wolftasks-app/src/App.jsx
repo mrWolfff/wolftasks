@@ -1,9 +1,13 @@
 import './App.css'
 import Home from "./pages/Home.jsx";
+import { ProjectReloadProvider } from './contexts/ProjectReloadContext.jsx';
 
 function App() {
     return (
-        <Home/>
+        <ProjectReloadProvider>
+            <Home/>
+        </ProjectReloadProvider>
+        
     );
 }
 

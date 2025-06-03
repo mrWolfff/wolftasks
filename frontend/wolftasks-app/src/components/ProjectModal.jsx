@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api.js';
 import UserSelectModal from './UserSelectModal';
+import { useProjectReload } from '../contexts/ProjectReloadContext.jsx';
 
 export default function ProjectModal({ isOpen, onClose }) {
     const [title, setTitle] = useState('');
@@ -14,6 +15,7 @@ export default function ProjectModal({ isOpen, onClose }) {
     const [showCreatorModal, setShowCreatorModal] = useState(false);
     const [showResponsibleModal, setShowResponsibleModal] = useState(false);
     const [users, setUsers] = useState([]);
+    const { setShouldReload } = useProjectReload();
 
     const modalRef = useRef(null);
     /*useClickOutside(modalRef, onClose);*/
@@ -45,6 +47,7 @@ export default function ProjectModal({ isOpen, onClose }) {
             creatorId: creatorId?.id,
             responsibleId: responsibleId?.id
         });
+        setShouldReload(true);
         onClose();
     };
 

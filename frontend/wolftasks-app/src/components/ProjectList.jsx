@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
 import api from '../services/api.js';
+import { useProjectReload } from '../contexts/ProjectReloadContext.jsx';
+import EditProjectModal from './EditProjectModal.jsx';
 
 export default function ProjectList() {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedProject, setSelectedProject] = useState(null);
+    const { shouldReload, setShouldReload } = useProjectReload();
 
     const fetchProjects = async () => {
         try {
@@ -18,7 +22,14 @@ export default function ProjectList() {
 
     useEffect(() => {
         fetchProjects();
-    }, []);
+      }, []);
+    
+      useEffect(() => {
+        if (shouldReload) {
+          fetchProjects();
+          setShouldReload(false); // reset o estado
+        }
+      }, [shouldReload]);
 
     return (
         <div className="p-6">
@@ -31,6 +42,7 @@ export default function ProjectList() {
                     {projects.map((project) => (
                         <div
                             key={project.id}
+                            onClick={() => setSelectedProject(project)}
                             className="bg-gray-800 rounded-lg p-4 border border-gray-700 shadow hover:shadow-lg transition-shadow"
                         >
                             <div className="mb-2">
@@ -42,18 +54,17 @@ export default function ProjectList() {
                                 <p>Data de criação: {project.creationDate}</p>
                                 <p>Finalizado: {project.finished ? 'Sim' : 'Não'}</p>
                             </div>
-                            <div className="mt-4 flex justify-end">
-                                <button
-                                    className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 rounded text-white"
-                                    onClick={() => alert(`Editar projeto: ${project.title}`)}
-                                >
-                                    ✏️ Editar
-                                </button>
-                            </div>
                         </div>
                     ))}
                 </div>
+                 
             )}
+            {selectedProject && (
+                    <EditProjectModal
+                      project={selectedProject}
+                      onClose={() => setSelectedProject(null)}
+                    />
+                  )}
         </div>
     );
 }
