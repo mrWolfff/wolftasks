@@ -5,16 +5,37 @@ import { useProjectReload } from '../contexts/ProjectReloadContext';
 const EditProjectModal = ({ project, onClose }) => {
   const [title, setTitle] = useState(project.title);
   const [description, setDescription] = useState(project.description);
+  const [status, setStatus] = useState(project.status);
   const { setShouldReload } = useProjectReload();
+  const statusList = [
+    { id: 0, title: 'CREATED' },
+    { id: 1, title: 'ANALYSING' },
+    { id: 2, title: 'ANALYSED' },
+    { id: 3, title: 'BLOCKED' },
+    { id: 4, title: 'EXECUTING' },
+    { id: 5, title: 'FINISHED' },
+    { id: 6, title: 'CANCELED' },
+    { id: 7, title: 'BACKLOG' }
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     await api.put(`/project/${project.id}`, {
       title,
-      description
+      description,
+      status
     });
     setShouldReload(true); // dispara reload
     onClose(); // fecha o modal
+  };
+
+  const deleteProject = async(e) =>{
+    if(confirm("Are you sure?")){
+    e.preventDefault();
+    await api.delete(`/project/${project.id}`);
+    setShouldReload(true); // dispara reload
+    onClose(); // fecha o modal
+  }
   };
 
   return (
@@ -35,6 +56,23 @@ const EditProjectModal = ({ project, onClose }) => {
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
+      <label className="block mb-2">Status</label>
+      <select value={status} onChange={(e) => setStatus(e.target.value)} className="border rounded px-2 py-1">
+      {statusList.map((s) => (
+        <option key={s.id} value={s.title}>
+          {s.title}
+        </option>
+      ))}
+    </select>
+
+    <label className="block mb-2"></label>
+    <div className="flex justify-start space-x-2">
+    <button
+          type="button"
+          onClick={deleteProject}
+
+          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-gray-500"
+        >Delete Project</button> </div>
 
       <div className="flex justify-end space-x-2">
         <button

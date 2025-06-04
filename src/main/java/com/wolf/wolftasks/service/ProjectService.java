@@ -71,6 +71,7 @@ public class ProjectService {
     public ResponseEntity<ProjectDTO> updateProject(String id, ProjectDTO dto) {
         return repository.findById(id)
                 .map(project -> {
+                	project.setTitle(dto.title());
                     project.setDescription(dto.description());
                     project.setStatus(dto.status());
                     project.setFinished(dto.finished());
