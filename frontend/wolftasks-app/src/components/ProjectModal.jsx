@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api.js';
 import UserSelectModal from './UserSelectModal';
+import { useClickOutside } from '../hooks/useClickOutside';
 import { useProjectReload } from '../contexts/ProjectReloadContext.jsx';
 import ModalWrapper from './ModalWrapper.jsx';
 

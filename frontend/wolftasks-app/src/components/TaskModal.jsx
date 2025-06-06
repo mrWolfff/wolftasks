@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api.js';
 import UserSelectModal from './UserSelectModal';
 import { useClickOutside } from '../hooks/useClickOutside';
+import { useProjectReload } from '../contexts/ProjectReloadContext.jsx';
 import ModalWrapper from './ModalWrapper.jsx';
+import Toast from './Toast.jsx';
 
 export default function TaskModal({ isOpen, onClose }) {
     const [title, setTitle] = useState('');
@@ -16,23 +17,38 @@ export default function TaskModal({ isOpen, onClose }) {
     const [selectedProject, setSelectedProject] = useState(null);
     const modalRef = useRef(null);
     const [projects, setProjects] = useState([]);
+    const { setShouldReload } = useProjectReload();
+    const [toast, setToast] = useState(null);
 
     useClickOutside(modalRef, onClose);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!selectedProject) return;
-        await api.post('/task', {
-            title,
-            description,
-            projectId: selectedProject.id,
-            creatorId: creatorId?.id,
-            responsibleId: responsibleId?.id
-        });
-        onClose();
-        setTitle('');
-        setSelectedProject(null);
+
+        try {
+            await api.post('/task', {
+                title,
+                description,
+                projectId: selectedProject.id,
+                creatorId: creatorId?.id,
+                responsibleId: responsibleId?.id
+            });
+
+            onClose();
+            setTitle('');
+            setShouldReload(true);
+            setSelectedProject(null);
+            setToast({ message: 'Tarefa criada com sucesso!', type: 'success' });
+
+        } catch (error) {
+            setToast({
+                message: error?.response?.data?.message || 'Erro ao criar tarefa.',
+                type: 'error'
+            });
+        }
     };
+
     const fetchProjects = async () => {
         try {
             const res = await api.get('/project');
@@ -68,7 +84,15 @@ export default function TaskModal({ isOpen, onClose }) {
     }, []);
 
     return (
+
         <ModalWrapper isOpen={isOpen} onClose={onClose}>
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
+            )}
             <div ref={modalRef}>
                 <h2 className="text-2xl font-bold mb-4">Criar Nova Task</h2>
 

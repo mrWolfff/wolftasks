@@ -1,5 +1,6 @@
 package com.wolf.wolftasks.domain.model;
 
+import com.wolf.wolftasks.domain.dto.CreateTaskDTO;
 import com.wolf.wolftasks.domain.dto.TaskDTO;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -47,7 +48,14 @@ public class Task {
 
     public Task() {}
 
-    // Getters e Setters
+    public Task(CreateTaskDTO dto) {
+    	this.title = dto.title();
+        this.description = dto.description();
+        this.creationDate = LocalDateTime.now();
+        this.finished = false;
+	}
+
+	// Getters e Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

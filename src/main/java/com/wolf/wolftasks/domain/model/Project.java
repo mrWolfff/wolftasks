@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "projects")
@@ -40,7 +41,7 @@ public class Project {
     private boolean finished;
 
     @DBRef
-    private List<Task> tasks;
+    private List<Task> tasks = new ArrayList<>();
 
     public Project(ProjectDTO dto) {
         this.title = dto.title();

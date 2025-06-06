@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "users") // Define a coleção do MongoDB
@@ -28,7 +29,7 @@ public class User {
     private boolean active;
 
     @DBRef // Referência para as tarefas criadas pelo usuário
-    private List<Task> tasks;
+    private List<Task> tasks = new ArrayList<>();
 
     @DBRef // Referência para os projetos do usuário
     private List<Project> projects;
@@ -68,11 +69,12 @@ public class User {
     public void setProjects(List<Project> projects) { this.projects = projects; }
 
     public void assignTaskAsCreator(Task task) {
-        if (this.tasks != null) {
-            this.tasks.add(task);
-        }
+    	this.tasks.add(task);
+    	task.setCreator(this);
     }
 
-    public void assignTaskAsResponsible(Task savedTask) {
+    public void assignTaskAsResponsible(Task task) {
+    	this.tasks.add(task);
+    	task.setResponsible(this);
     }
 }

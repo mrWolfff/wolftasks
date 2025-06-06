@@ -1,5 +1,6 @@
 package com.wolf.wolftasks.controller;
 
+import com.wolf.wolftasks.domain.dto.CreateTaskDTO;
 import com.wolf.wolftasks.domain.dto.TaskDTO;
 import com.wolf.wolftasks.service.TaskService;
 import jakarta.validation.Valid;
@@ -32,7 +33,7 @@ public class TaskController {
     }
 
     @PostMapping
-    public ResponseEntity<TaskDTO> createTask(@RequestBody @Valid TaskDTO dto, UriComponentsBuilder uri) {
+    public ResponseEntity<TaskDTO> createTask(@RequestBody @Valid CreateTaskDTO dto, UriComponentsBuilder uri) {
         return service.createTask(dto, uri);
     }
 

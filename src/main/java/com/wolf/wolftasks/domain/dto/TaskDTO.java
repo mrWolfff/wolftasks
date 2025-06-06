@@ -15,10 +15,19 @@ public record TaskDTO(String id,
                       String creatorId,
                       String responsibleId) {
 
-    public static TaskDTO fromEntity(Task task){
-        return new TaskDTO(task.getId(), task.getTitle(),
-                task.getDescription(), task.getProject().getId(),
-                task.getCreationDate(), task.isFinished(),task.getCreator().getId(),
-                task.getResponsible().getId());
-    }
+	public static TaskDTO fromEntity(Task task) {
+	    String creatorId = task.getCreator() != null ? task.getCreator().getId() : "";
+	    String responsibleId = task.getResponsible() != null ? task.getResponsible().getId() : "";
+
+	    return new TaskDTO(
+	        task.getId(),
+	        task.getTitle(),
+	        task.getDescription(),
+	        task.getProject().getId(),
+	        task.getCreationDate(),
+	        task.isFinished(),
+	        creatorId,
+	        responsibleId
+	    );
+	}
 }

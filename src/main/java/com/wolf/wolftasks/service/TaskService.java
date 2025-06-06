@@ -1,5 +1,6 @@
 package com.wolf.wolftasks.service;
 
+import com.wolf.wolftasks.domain.dto.CreateTaskDTO;
 import com.wolf.wolftasks.domain.dto.TaskDTO;
 import com.wolf.wolftasks.domain.model.Task;
 import com.wolf.wolftasks.domain.model.User;
@@ -45,11 +46,12 @@ public class TaskService {
         return ResponseEntity.ok(TaskDTO.fromEntity(task));
     }
 
-    public ResponseEntity<TaskDTO> createTask(TaskDTO dto, UriComponentsBuilder uri) {
+    public ResponseEntity<TaskDTO> createTask(CreateTaskDTO dto, UriComponentsBuilder uri) {
         Project project = projectRepository.findById(dto.projectId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Projeto não encontrado"));
 
         Task task = new Task(dto);
+        task.setProject(project);
         project.addTask(task);
 
         Task savedTask = taskRepository.save(task);
