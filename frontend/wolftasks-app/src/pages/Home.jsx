@@ -12,6 +12,7 @@ export default function Home() {
     const [projectModalOpen, setProjectModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('Dashboard');
 
+
     const fetchTasks = async () => {
         try {
             const res = await api.get('/task');
@@ -21,6 +22,9 @@ export default function Home() {
         }
     };
 
+
+
+
     useEffect(() => {
         if (activeTab === 'Tasks') {
             fetchTasks();
@@ -29,7 +33,6 @@ export default function Home() {
 
     return (
         <div className="flex w-screen h-screen bg-gray-900 text-white">
-            {/* Sidebar fixa */}
             <aside className="w-60 bg-gray-800 p-4 flex flex-col border-r border-gray-700">
                 <h2 className="text-xl font-semibold mb-6">Menu</h2>
                 <nav className="flex flex-col space-y-3">
@@ -45,29 +48,25 @@ export default function Home() {
                     ))}
                 </nav>
             </aside>
-
-            {/* Conteúdo */}
             <div className="flex-1 flex flex-col">
-                {/* Cabeçalho */}
                 <Header
                     onOpenTaskModal={() => setTaskModalOpen(true)}
                     onOpenProjectModal={() => setProjectModalOpen(true)}
                 />
 
-                {/* Breadcrumb */}
                 <div className="bg-gray-850 border-b border-gray-700 px-6 py-3 text-sm text-gray-300">
                     Your work / <span className="text-white">{activeTab}</span>
                 </div>
 
-                {/* Conteúdo principal */}
                 <main className="flex-1 overflow-y-auto p-6">
                     {activeTab === 'Dashboard' && (
-                        <KanbanBoard/>
+
+                        <KanbanBoard />
 
                     )}
 
                     {activeTab === 'Projects' && (
-                        <ProjectList/>
+                        <ProjectList />
                     )}
 
                     {activeTab === 'Tasks' && (

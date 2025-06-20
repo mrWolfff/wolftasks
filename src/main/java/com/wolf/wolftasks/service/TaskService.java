@@ -8,6 +8,9 @@ import com.wolf.wolftasks.domain.model.Project;
 import com.wolf.wolftasks.repository.ProjectRepository;
 import com.wolf.wolftasks.repository.TaskRepository;
 import com.wolf.wolftasks.repository.UserRepository;
+
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -95,4 +98,12 @@ public class TaskService {
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+	public ResponseEntity<List<TaskDTO>> searchTasks(@Valid String id) {
+		List<TaskDTO> tasks = taskRepository.findByProjectId(id)
+                .stream()
+                .map(TaskDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(tasks);
+	}
 }

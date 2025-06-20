@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import api from '../services/api.js';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { useDroppable, useDraggable } from '@dnd-kit/core';
 
@@ -37,7 +38,7 @@ export default function KanbanBoard() {
         'To-Do': ['Criar layout', 'Configurar ambiente'],
         Doing: ['Desenvolver login'],
         Testing: ['Revisar tarefa X'],
-        Conclude: ['Setup inicial do projeto']
+        Finished: ['Setup inicial do projeto']
     });
 
     const columns = [
@@ -45,8 +46,39 @@ export default function KanbanBoard() {
         { title: 'To-Do', color: 'bg-blue-800' },
         { title: 'Doing', color: 'bg-yellow-700' },
         { title: 'Testing', color: 'bg-purple-700' },
-        { title: 'Conclude', color: 'bg-green-800' }
+        { title: 'Finished', color: 'bg-green-800' }
     ];
+    const [projects, setProjects] = useState([]);
+    const [selectedProject, setSelectedProject] = useState(null);
+
+    const fetchProjects = async () => {
+        try {
+            const res = await api.get('/project');
+            setProjects(res.data);
+        } catch (err) {
+            console.error('Erro ao buscar projetos:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchProjects();
+    }, []);
+
+    const setProject = (project) => {
+        setSelectedProject(project);
+        searchTasks(project.id);
+    };
+
+    const searchTasks = async (projectId) => {
+        try {
+            const res = await api.get('/task/search/' + projectId);
+            setTasks(res.data);
+        } catch (error) {
+            console.error("Erro ao buscar tarefas:", error);
+        }
+    };
 
     const handleDragEnd = (event) => {
         const { active, over } = event;
@@ -70,32 +102,51 @@ export default function KanbanBoard() {
     };
 
     return (
-        <DndContext onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
-            <div className="h-screen w-full overflow-x-auto bg-gray-900 text-white">
-                <div className="flex gap-4 min-w-[1000px] p-4">
-                    {columns.map((col) => (
-                        <DroppableColumn
-                            key={col.title}
-                            id={col.title}
-                            className={`flex flex-col w-64 rounded-lg ${col.color} p-4 shadow`}
-                        >
-                            <h2 className="text-lg font-semibold mb-4 text-white">
-                                {col.title}
-                            </h2>
-
-                            <div className="flex flex-col gap-3">
-                                {tasks[col.title]?.map((task, index) => (
-                                    <DraggableCard key={task} id={task}>
-                                        {task}
-                                    </DraggableCard>
-                                )) || (
-                                    <p className="text-sm text-gray-300">Nenhuma tarefa.</p>
-                                )}
-                            </div>
-                        </DroppableColumn>
-                    ))}
+        <div>
+            {!selectedProject ? (
+                <div className="space-y-3">
+                    <p className="text-sm text-gray-400">Selecione um projeto:</p>
+                    <div className="grid grid-cols-1 gap-3">
+                        {projects.map((project) => (
+                            <button
+                                key={project.id}
+                                onClick={() => setProject(project)}
+                                className="w-full text-left p-4 border rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
+                            >
+                                <strong>{project.title}</strong>
+                            </button>
+                        ))}
+                    </div>
                 </div>
-            </div>
-        </DndContext>
+            ) : (
+                <DndContext onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
+                    <div className="h-screen w-full overflow-x-auto bg-gray-900 text-white">
+                        <div className="flex gap-4 min-w-[1000px] p-4">
+                            {columns.map((col) => (
+                                <DroppableColumn
+                                    key={col.title}
+                                    id={col.title}
+                                    className={`flex flex-col w-64 rounded-lg ${col.color} p-4 shadow`}
+                                >
+                                    <h2 className="text-lg font-semibold mb-4 text-white">
+                                        {col.title}
+                                    </h2>
+
+                                    <div className="flex flex-col gap-3">
+                                        {tasks[col.title]?.map((task, index) => (
+                                            <DraggableCard key={task} id={task}>
+                                                {task}
+                                            </DraggableCard>
+                                        )) || (
+                                                <p className="text-sm text-gray-300">Nenhuma tarefa.</p>
+                                            )}
+                                    </div>
+                                </DroppableColumn>
+                            ))}
+                        </div>
+                    </div>
+                </DndContext>
+            )}
+        </div>
     );
 }

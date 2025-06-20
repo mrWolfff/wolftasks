@@ -4,6 +4,8 @@ import com.wolf.wolftasks.domain.dto.CreateTaskDTO;
 import com.wolf.wolftasks.domain.dto.TaskDTO;
 import com.wolf.wolftasks.service.TaskService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +37,11 @@ public class TaskController {
     @PostMapping
     public ResponseEntity<TaskDTO> createTask(@RequestBody @Valid CreateTaskDTO dto, UriComponentsBuilder uri) {
         return service.createTask(dto, uri);
+    }
+    
+    @GetMapping("/search/{id}")
+    public ResponseEntity<List<TaskDTO>> searchTasks(@PathVariable @NotBlank  String id) {
+        return service.searchTasks(id);
     }
 
     @DeleteMapping("/{id}")
