@@ -1,6 +1,7 @@
 package com.wolf.wolftasks.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wolf.wolftasks.domain.model.StatusTask;
 import com.wolf.wolftasks.domain.model.Task;
 
 import java.time.LocalDateTime;
@@ -9,6 +10,7 @@ public record TaskDTO(String id,
                       String title,
                       String description,
                       String projectId,
+                      StatusTask status,
                       @JsonFormat(pattern = "dd-MM-yyyy'T'HH:mm:ss")
                       LocalDateTime creationDate,
                       boolean finished,
@@ -24,6 +26,7 @@ public record TaskDTO(String id,
 	        task.getTitle(),
 	        task.getDescription(),
 	        task.getProject().getId(),
+	        task.getStatus(),
 	        task.getCreationDate(),
 	        task.isFinished(),
 	        creatorId,

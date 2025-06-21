@@ -92,6 +92,7 @@ public class TaskService {
                     task.setTitle(dtoUpdated.title());
                     task.setDescription(dtoUpdated.description());
                     task.setFinished(dtoUpdated.finished());
+                    task.setStatus(dtoUpdated.status());
 
                     Task updatedTask = taskRepository.save(task);
                     return ResponseEntity.ok(TaskDTO.fromEntity(updatedTask));

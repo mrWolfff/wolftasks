@@ -16,6 +16,7 @@ export default function TaskModal({ isOpen, onClose }) {
     const [users, setUsers] = useState([]);
     const [selectedProject, setSelectedProject] = useState(null);
     const modalRef = useRef(null);
+    const [loading, setLoading] = useState(false);
     const [projects, setProjects] = useState([]);
     const { setShouldReload } = useProjectReload();
     const [toast, setToast] = useState(null);

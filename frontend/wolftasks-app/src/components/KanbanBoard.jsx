@@ -33,20 +33,14 @@ function DraggableCard({ id, children }) {
 }
 
 export default function KanbanBoard() {
-    const [tasks, setTasks] = useState({
-        Backlog: ['Ideia nova', 'Planejamento de sprint'],
-        'To-Do': ['Criar layout', 'Configurar ambiente'],
-        Doing: ['Desenvolver login'],
-        Testing: ['Revisar tarefa X'],
-        Finished: ['Setup inicial do projeto']
-    });
+    const [tasks, setTasks] = useState([]);
 
     const columns = [
-        { title: 'Backlog', color: 'bg-gray-800' },
-        { title: 'To-Do', color: 'bg-blue-800' },
-        { title: 'Doing', color: 'bg-yellow-700' },
-        { title: 'Testing', color: 'bg-purple-700' },
-        { title: 'Finished', color: 'bg-green-800' }
+        { title: 'BACKLOG', color: 'bg-gray-800' },
+        { title: 'TO_DO', color: 'bg-blue-800' },
+        { title: 'DOING', color: 'bg-yellow-700' },
+        { title: 'TESTING', color: 'bg-purple-700' },
+        { title: 'FINISHED', color: 'bg-green-800' }
     ];
     const [projects, setProjects] = useState([]);
     const [selectedProject, setSelectedProject] = useState(null);
@@ -57,8 +51,6 @@ export default function KanbanBoard() {
             setProjects(res.data);
         } catch (err) {
             console.error('Erro ao buscar projetos:', err);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -80,25 +72,43 @@ export default function KanbanBoard() {
         }
     };
 
+    // Função para atualizar status na API
+    const updateTaskStatus = async (task, newStatus) => {
+        try {
+            await api.put(`/task/${task.id}`, { status: newStatus });
+            console.log(`Task ${task.id} atualizada para ${newStatus}`);
+        } catch (error) {
+            console.error('Erro ao atualizar status da tarefa:', error);
+            // Reverter mudança local em caso de erro
+            searchTasks(selectedProject.id);
+        }
+    };
+
     const handleDragEnd = (event) => {
         const { active, over } = event;
-        if (!over || active.id === over.id) return;
 
-        const sourceColumn = Object.keys(tasks).find((col) => tasks[col].includes(active.id));
-        const destColumn = over.id;
+        // Se não há destino válido, cancela
+        if (!over) return;
 
-        if (!sourceColumn || !destColumn) return;
+        const taskId = active.id;
+        const newStatus = over.id;
 
-        setTasks((prev) => {
-            const newSource = prev[sourceColumn].filter((task) => task !== active.id);
-            const newDest = [...prev[destColumn], active.id];
+        // Encontra a tarefa atual
+        const currentTask = tasks.find(task => task.id.toString() === taskId.toString());
 
-            return {
-                ...prev,
-                [sourceColumn]: newSource,
-                [destColumn]: newDest
-            };
-        });
+        // Se não encontrou a tarefa ou o status é o mesmo, cancela
+        if (!currentTask || currentTask.status === newStatus) return;
+
+        // Atualiza o estado local imediatamente para feedback visual rápido
+        const updatedTasks = tasks.map(task =>
+            task.id.toString() === taskId.toString()
+                ? { ...task, status: newStatus }
+                : task
+        );
+        setTasks(updatedTasks);
+
+        // Atualiza no backend
+        updateTaskStatus(updatedTasks[0], newStatus);
     };
 
     return (
@@ -132,14 +142,20 @@ export default function KanbanBoard() {
                                         {col.title}
                                     </h2>
 
-                                    <div className="flex flex-col gap-3">
-                                        {tasks[col.title]?.map((task, index) => (
-                                            <DraggableCard key={task} id={task}>
-                                                {task}
-                                            </DraggableCard>
-                                        )) || (
-                                                <p className="text-sm text-gray-300">Nenhuma tarefa.</p>
-                                            )}
+                                    <div className="flex flex-col gap-3 min-h-[100px]">
+                                        {tasks
+                                            .filter(task => task.status === col.title)
+                                            .map((task) => (
+                                                <DraggableCard key={task.id} id={task.id.toString()}>
+                                                    <div>
+                                                        <h3 className="font-medium">{task.title}</h3>
+                                                        <p className="text-sm text-gray-300">{task.description}</p>
+                                                    </div>
+                                                </DraggableCard>
+                                            ))}
+                                        {tasks.filter(task => task.status === col.title).length === 0 && (
+                                            <p className="text-sm text-gray-300">Nenhuma tarefa.</p>
+                                        )}
                                     </div>
                                 </DroppableColumn>
                             ))}

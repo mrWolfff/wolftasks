@@ -20,6 +20,9 @@ public class Task {
     private String title;
 
     private String description;
+    
+    @NotNull
+    private StatusTask status;
 
     private List<Step> steps;
 
@@ -53,11 +56,24 @@ public class Task {
         this.description = dto.description();
         this.creationDate = LocalDateTime.now();
         this.finished = false;
+        this.status = StatusTask.BACKLOG;
 	}
 
 	// Getters e Setters
+    
+    
     public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public StatusTask getStatus() {
+        if (status == null)
+            return StatusTask.BACKLOG;
+		return status;
+	}
+
+	public void setStatus(StatusTask status) {
+		this.status = status;
+	}
+
+	public void setId(String id) { this.id = id; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
