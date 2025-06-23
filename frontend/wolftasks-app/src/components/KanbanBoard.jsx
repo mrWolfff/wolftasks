@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import {useState, useEffect} from 'react';
 import api from '../services/api.js';
-import { DndContext, closestCenter } from '@dnd-kit/core';
-import { useDroppable, useDraggable } from '@dnd-kit/core';
+import {DndContext, closestCenter} from '@dnd-kit/core';
+import {useDroppable, useDraggable} from '@dnd-kit/core';
+import {EditTaskModal} from "./EditTaskModal.jsx";
 
-function DroppableColumn({ id, children, className }) {
-    const { setNodeRef } = useDroppable({ id });
+function DroppableColumn({id, children, className}) {
+    const {setNodeRef} = useDroppable({id});
     return (
         <div ref={setNodeRef} className={className}>
             {children}
@@ -13,9 +14,18 @@ function DroppableColumn({ id, children, className }) {
 }
 
 function DraggableCard({ id, children }) {
-    const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id });
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        isDragging
+    } = useDraggable({ id });
+
     const style = {
-        transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+        transform: transform
+            ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+            : undefined,
         zIndex: isDragging ? 10 : 1
     };
 
@@ -23,11 +33,13 @@ function DraggableCard({ id, children }) {
         <div
             ref={setNodeRef}
             style={style}
-            {...listeners}
-            {...attributes}
-            className="bg-white text-black rounded p-3 shadow hover:shadow-lg hover:scale-[1.02] transition-transform duration-150"
+            {...attributes} // atributos de acessibilidade
+            className="bg-gray-600 text-white rounded p-3 shadow hover:shadow-lg hover:scale-[1.02] transition-transform duration-150"
         >
-            {children}
+            {/* Aplica listeners APENAS no conteúdo que deve arrastar */}
+            <div {...listeners}>
+                {children}
+            </div>
         </div>
     );
 }
@@ -36,14 +48,16 @@ export default function KanbanBoard() {
     const [tasks, setTasks] = useState([]);
 
     const columns = [
-        { title: 'BACKLOG', color: 'bg-gray-800' },
-        { title: 'TO_DO', color: 'bg-blue-800' },
-        { title: 'DOING', color: 'bg-yellow-700' },
-        { title: 'TESTING', color: 'bg-purple-700' },
-        { title: 'FINISHED', color: 'bg-green-800' }
+        {title: 'BACKLOG', color: 'bg-gray-800'},
+        {title: 'TO_DO', color: 'bg-blue-800'},
+        {title: 'DOING', color: 'bg-yellow-700'},
+        {title: 'TESTING', color: 'bg-purple-700'},
+        {title: 'FINISHED', color: 'bg-green-800'}
     ];
     const [projects, setProjects] = useState([]);
     const [selectedProject, setSelectedProject] = useState(null);
+    const [selectedTask, setSelectedTask] = useState(null);
+    const [isDragging, setIsDragging] = useState(false);
 
     const fetchProjects = async () => {
         try {
@@ -75,7 +89,7 @@ export default function KanbanBoard() {
     // Função para atualizar status na API
     const updateTaskStatus = async (task, newStatus) => {
         try {
-            await api.put(`/task/${task.id}`, { status: newStatus });
+            await api.put(`/task/${task.id}`, {status: newStatus});
             console.log(`Task ${task.id} atualizada para ${newStatus}`);
         } catch (error) {
             console.error('Erro ao atualizar status da tarefa:', error);
@@ -85,7 +99,7 @@ export default function KanbanBoard() {
     };
 
     const handleDragEnd = (event) => {
-        const { active, over } = event;
+        const {active, over} = event;
 
         // Se não há destino válido, cancela
         if (!over) return;
@@ -102,7 +116,7 @@ export default function KanbanBoard() {
         // Atualiza o estado local imediatamente para feedback visual rápido
         const updatedTasks = tasks.map(task =>
             task.id.toString() === taskId.toString()
-                ? { ...task, status: newStatus }
+                ? {...task, status: newStatus}
                 : task
         );
         setTasks(updatedTasks);
@@ -146,13 +160,28 @@ export default function KanbanBoard() {
                                         {tasks
                                             .filter(task => task.status === col.title)
                                             .map((task) => (
-                                                <DraggableCard key={task.id} id={task.id.toString()}>
-                                                    <div>
+                                                <DraggableCard
+                                                    key={task.id}
+                                                    id={task.id.toString()}
+                                                >
+                                                    <div className="relative">
+                                                        {/* Botão fora dos listeners, drag não será ativado aqui */}
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setSelectedTask(task);
+                                                            }}
+                                                            className="absolute top-1 right-1 text-white bg-black/40 hover:bg-black/60 rounded-full p-1 z-10"
+                                                        >
+                                                            🔍
+                                                        </button>
+
                                                         <h3 className="font-medium">{task.title}</h3>
                                                         <p className="text-sm text-gray-300">{task.description}</p>
                                                     </div>
                                                 </DraggableCard>
                                             ))}
+
                                         {tasks.filter(task => task.status === col.title).length === 0 && (
                                             <p className="text-sm text-gray-300">Nenhuma tarefa.</p>
                                         )}
@@ -163,6 +192,15 @@ export default function KanbanBoard() {
                     </div>
                 </DndContext>
             )}
+            {
+                selectedTask && (
+                    <EditTaskModal
+                        task={selectedTask}
+                        onClose={() => setSelectedTask(null)}
+                    />
+                )
+            }
         </div>
-    );
+    )
+        ;
 }

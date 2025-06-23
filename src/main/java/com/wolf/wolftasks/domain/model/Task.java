@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Document(collection = "tasks") // Define a coleção no MongoDB
+@Document(collection = "tasks")
 public class Task {
 
     @Id
@@ -33,7 +33,7 @@ public class Task {
     @NotNull
     private boolean finished;
 
-    @DBRef // Indica referência a outro documento (não carrega automaticamente)
+    @DBRef
     private User creator;
 
     @DBRef
@@ -82,9 +82,7 @@ public class Task {
     public void setDescription(String description) { this.description = description; }
 
     public LocalDateTime getCreationDate() { return creationDate; }
-    public void setCreationDate(LocalDateTime creationDate) { this.creationDate = creationDate; }
 
-    public LocalDateTime getFinishDate() { return finishDate; }
     public void setFinishDate(LocalDateTime finishDate) { this.finishDate = finishDate; }
 
     public boolean isFinished() { return finished; }
