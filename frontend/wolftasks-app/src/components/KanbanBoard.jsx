@@ -13,7 +13,7 @@ function DroppableColumn({id, children, className}) {
     );
 }
 
-function DraggableCard({ id, children }) {
+function DraggableCard({ id, children, onTaskClick }) {
     const {
         attributes,
         listeners,
@@ -33,11 +33,23 @@ function DraggableCard({ id, children }) {
         <div
             ref={setNodeRef}
             style={style}
-            {...attributes} // atributos de acessibilidade
+            {...attributes}
             className="bg-gray-600 text-white rounded p-3 shadow hover:shadow-lg hover:scale-[1.02] transition-transform duration-150"
         >
-            {/* Aplica listeners APENAS no conteúdo que deve arrastar */}
-            <div {...listeners}>
+            {/* Handle para arrastar - área pequena e específica */}
+            <div
+                {...listeners}
+                className="w-full h-6 bg-gray-500 hover:bg-gray-400 rounded cursor-move mb-2 flex items-center justify-center text-xs opacity-70 hover:opacity-100 transition-opacity"
+                title="Arrastar tarefa"
+            >
+                ⋮⋮ Arrastar
+            </div>
+
+            {/* Conteúdo clicável - SEM listeners de drag */}
+            <div
+                className="cursor-pointer p-2 hover:bg-gray-700 transition-all duration-200 rounded"
+                onClick={onTaskClick}
+            >
                 {children}
             </div>
         </div>
@@ -122,11 +134,19 @@ export default function KanbanBoard() {
         setTasks(updatedTasks);
 
         // Atualiza no backend
-        updateTaskStatus(updatedTasks[0], newStatus);
+        updateTaskStatus(currentTask, newStatus);
     };
 
     return (
         <div>
+            {
+                selectedTask && (
+                    <EditTaskModal
+                        task={selectedTask}
+                        onClose={() => setSelectedTask(null)}
+                    />
+                )
+            }
             {!selectedProject ? (
                 <div className="space-y-3">
                     <p className="text-sm text-gray-400">Selecione um projeto:</p>
@@ -163,22 +183,10 @@ export default function KanbanBoard() {
                                                 <DraggableCard
                                                     key={task.id}
                                                     id={task.id.toString()}
+                                                    onTaskClick={() => setSelectedTask(task)}
                                                 >
-                                                    <div className="relative">
-                                                        {/* Botão fora dos listeners, drag não será ativado aqui */}
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                setSelectedTask(task);
-                                                            }}
-                                                            className="absolute top-1 right-1 text-white bg-black/40 hover:bg-black/60 rounded-full p-1 z-10"
-                                                        >
-                                                            🔍
-                                                        </button>
-
-                                                        <h3 className="font-medium">{task.title}</h3>
-                                                        <p className="text-sm text-gray-300">{task.description}</p>
-                                                    </div>
+                                                    <h3 className="font-medium">{task.title}</h3>
+                                                    <p className="text-sm text-gray-300">{task.description}</p>
                                                 </DraggableCard>
                                             ))}
 
@@ -192,15 +200,6 @@ export default function KanbanBoard() {
                     </div>
                 </DndContext>
             )}
-            {
-                selectedTask && (
-                    <EditTaskModal
-                        task={selectedTask}
-                        onClose={() => setSelectedTask(null)}
-                    />
-                )
-            }
         </div>
-    )
-        ;
+    );
 }
