@@ -1,6 +1,6 @@
 import {useState} from 'react';
-import api from '../services/api';
-import {useProjectReload} from '../contexts/ProjectReloadContext';
+import api from '../../services/api';
+import {useProjectReload} from '../../contexts/ProjectReloadContext';
 
 const EditProjectModal = ({project, onClose}) => {
     const [title, setTitle] = useState(project.title);

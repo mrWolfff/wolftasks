@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import api from '../services/api.js';
 import Header from '../components/Header.jsx';
 import KanbanBoard from "../components/KanbanBoard.jsx";
-import TaskModal from '../components/TaskModal.jsx';
-import ProjectModal from '../components/ProjectModal.jsx';
-import ProjectList from "../components/ProjectList.jsx";
+import TaskModal from '../components/task/TaskModal.jsx';
+import ProjectModal from '../components/project/ProjectModal.jsx';
+import ProjectList from "../components/project/ProjectList.jsx";
 
 export default function Home() {
     const [tasks, setTasks] = useState([]);
@@ -93,7 +93,7 @@ export default function Home() {
                 isOpen={taskModalOpen}
                 onClose={() => {
                     setTaskModalOpen(false);
-                    fetchTasks(); // recarrega tasks após salvar
+                    fetchTasks();
                 }}
             />
             <ProjectModal

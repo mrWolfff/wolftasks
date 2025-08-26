@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import api from '../services/api.js';
-import UserSelectModal from './UserSelectModal';
-import { useClickOutside } from '../hooks/useClickOutside';
-import { useProjectReload } from '../contexts/ProjectReloadContext.jsx';
-import ModalWrapper from './ModalWrapper.jsx';
-import Toast from './Toast.jsx';
+import api from '../../services/api.js';
+import UserSelectModal from '../user/UserSelectModal';
+import { useClickOutside } from '../../hooks/useClickOutside';
+import { useProjectReload } from '../../contexts/ProjectReloadContext.jsx';
+import ModalWrapper from '../general/ModalWrapper.jsx';
+import Toast from '../general/Toast.jsx';
 
 export default function TaskModal({ isOpen, onClose }) {
     const [title, setTitle] = useState('');

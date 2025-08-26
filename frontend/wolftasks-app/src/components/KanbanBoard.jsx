@@ -2,7 +2,7 @@ import {useState, useEffect} from 'react';
 import api from '../services/api.js';
 import {DndContext, closestCenter} from '@dnd-kit/core';
 import {useDroppable, useDraggable} from '@dnd-kit/core';
-import {EditTaskModal} from "./EditTaskModal.jsx";
+import {EditTaskModal} from "./task/EditTaskModal.jsx";
 
 function DroppableColumn({id, children, className}) {
     const {setNodeRef} = useDroppable({id});
@@ -13,14 +13,14 @@ function DroppableColumn({id, children, className}) {
     );
 }
 
-function DraggableCard({ id, children, onTaskClick }) {
+function DraggableCard({id, children, onTaskClick}) {
     const {
         attributes,
         listeners,
         setNodeRef,
         transform,
         isDragging
-    } = useDraggable({ id });
+    } = useDraggable({id});
 
     const style = {
         transform: transform
@@ -36,20 +36,17 @@ function DraggableCard({ id, children, onTaskClick }) {
             {...attributes}
             className="bg-gray-600 text-white rounded p-3 shadow hover:shadow-lg hover:scale-[1.02] transition-transform duration-150"
         >
-            {/* Handle para arrastar - área pequena e específica */}
             <div
                 {...listeners}
-                className="w-full h-6 bg-gray-500 hover:bg-gray-400 rounded cursor-move mb-2 flex items-center justify-center text-xs opacity-70 hover:opacity-100 transition-opacity"
+                className=" h-6 bg-gray-500 hover:bg-gray-400 rounded cursor-move mb-2 flex items-center justify-center text-xs opacity-70 hover:opacity-100 transition-opacity"
                 title="Arrastar tarefa"
             >
-                ⋮⋮ Arrastar
+                ⋮⋮ Drag
             </div>
 
-            {/* Conteúdo clicável - SEM listeners de drag */}
             <div
                 className="cursor-pointer p-2 hover:bg-gray-700 transition-all duration-200 rounded"
-                onClick={onTaskClick}
-            >
+                onClick={onTaskClick}>
                 {children}
             </div>
         </div>
@@ -58,6 +55,7 @@ function DraggableCard({ id, children, onTaskClick }) {
 
 export default function KanbanBoard() {
     const [tasks, setTasks] = useState([]);
+    const [taskModalOpen, setTaskModalOpen] = useState(false);
 
     const columns = [
         {title: 'BACKLOG', color: 'bg-gray-800'},
@@ -69,8 +67,6 @@ export default function KanbanBoard() {
     const [projects, setProjects] = useState([]);
     const [selectedProject, setSelectedProject] = useState(null);
     const [selectedTask, setSelectedTask] = useState(null);
-    const [isDragging, setIsDragging] = useState(false);
-
     const fetchProjects = async () => {
         try {
             const res = await api.get('/project');
@@ -98,42 +94,29 @@ export default function KanbanBoard() {
         }
     };
 
-    // Função para atualizar status na API
     const updateTaskStatus = async (task, newStatus) => {
         try {
             await api.put(`/task/${task.id}`, {status: newStatus});
-            console.log(`Task ${task.id} atualizada para ${newStatus}`);
+            console.log(`Task ${task.id} updated to ${newStatus}`);
         } catch (error) {
-            console.error('Erro ao atualizar status da tarefa:', error);
-            // Reverter mudança local em caso de erro
-            searchTasks(selectedProject.id);
+            console.error('Error while updating status:', error);
+            await searchTasks(selectedProject.id);
         }
     };
 
     const handleDragEnd = (event) => {
         const {active, over} = event;
-
-        // Se não há destino válido, cancela
         if (!over) return;
-
         const taskId = active.id;
         const newStatus = over.id;
-
-        // Encontra a tarefa atual
         const currentTask = tasks.find(task => task.id.toString() === taskId.toString());
-
-        // Se não encontrou a tarefa ou o status é o mesmo, cancela
         if (!currentTask || currentTask.status === newStatus) return;
-
-        // Atualiza o estado local imediatamente para feedback visual rápido
         const updatedTasks = tasks.map(task =>
             task.id.toString() === taskId.toString()
                 ? {...task, status: newStatus}
                 : task
         );
         setTasks(updatedTasks);
-
-        // Atualiza no backend
         updateTaskStatus(currentTask, newStatus);
     };
 
@@ -143,19 +126,19 @@ export default function KanbanBoard() {
                 selectedTask && (
                     <EditTaskModal
                         task={selectedTask}
-                        onClose={() => setSelectedTask(null)}
-                    />
+                        isOpen={taskModalOpen}
+                        onClose={() => setSelectedTask(null)}/>
                 )
             }
             {!selectedProject ? (
                 <div className="space-y-3">
-                    <p className="text-sm text-gray-400">Selecione um projeto:</p>
+                    <p className="text-sm text-gray-400">Select a project:</p>
                     <div className="grid grid-cols-1 gap-3">
                         {projects.map((project) => (
                             <button
                                 key={project.id}
                                 onClick={() => setProject(project)}
-                                className="w-full text-left p-4 border rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
+                                className="w-full text-left p-4 border rounded-xl bg-gray-800 hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
                             >
                                 <strong>{project.title}</strong>
                             </button>
@@ -170,20 +153,18 @@ export default function KanbanBoard() {
                                 <DroppableColumn
                                     key={col.title}
                                     id={col.title}
-                                    className={`flex flex-col w-64 rounded-lg ${col.color} p-4 shadow`}
-                                >
+                                    className={`flex flex-col w-64 rounded-lg ${col.color} p-4 shadow`}>
                                     <h2 className="text-lg font-semibold mb-4 text-white">
                                         {col.title}
                                     </h2>
 
                                     <div className="flex flex-col gap-3 min-h-[100px]">
-                                        {tasks
-                                            .filter(task => task.status === col.title)
+                                        {tasks.filter(task => task.status === col.title)
                                             .map((task) => (
                                                 <DraggableCard
                                                     key={task.id}
                                                     id={task.id.toString()}
-                                                    onTaskClick={() => setSelectedTask(task)}
+                                                    onTaskClick={() => {setSelectedTask(task); setTaskModalOpen(true);}}
                                                 >
                                                     <h3 className="font-medium">{task.title}</h3>
                                                     <p className="text-sm text-gray-300">{task.description}</p>
@@ -191,7 +172,7 @@ export default function KanbanBoard() {
                                             ))}
 
                                         {tasks.filter(task => task.status === col.title).length === 0 && (
-                                            <p className="text-sm text-gray-300">Nenhuma tarefa.</p>
+                                            <p className="text-sm text-gray-300">None.</p>
                                         )}
                                     </div>
                                 </DroppableColumn>

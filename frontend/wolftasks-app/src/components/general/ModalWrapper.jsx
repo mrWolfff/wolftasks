@@ -19,7 +19,15 @@ export default function ModalWrapper({ isOpen, onClose, children }) {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="bg-white dark:bg-gray-900 text-black dark:text-white p-6 rounded-2xl shadow-2xl w-full max-w-md border border-gray-300 dark:border-gray-700"
+          className=" bg-gray-900
+          text-white
+          p-5
+          rounded-2xl
+          shadow-2xl
+          min-w-3/4
+          min-h-3/4
+          border
+          border-gray-500"
         >
           {children}
         </motion.div>

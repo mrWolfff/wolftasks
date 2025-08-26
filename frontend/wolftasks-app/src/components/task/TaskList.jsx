@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react';
-import api from '../services/api.js';
-import { useProjectReload } from '../contexts/ProjectReloadContext.jsx';
-import EditProjectModal from './EditProjectModal.jsx';
+import {useEffect, useState} from "react";
+import {useProjectReload} from "../../contexts/ProjectReloadContext.jsx";
+import api from "../../services/api.js";
+import EditProjectModal from "../project/EditProjectModal.jsx";
 
-export default function ProjectList() {
+export default function TaskList() {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [selectedProject, setSelectedProject] = useState(null);
     const { shouldReload, setShouldReload } = useProjectReload();
+    const [selectedProject, setSelectedProject] = useState(null);
 
     const fetchProjects = async () => {
         try {
@@ -22,14 +22,14 @@ export default function ProjectList() {
 
     useEffect(() => {
         fetchProjects();
-      }, []);
-    
-      useEffect(() => {
+    }, []);
+
+    useEffect(() => {
         if (shouldReload) {
-          fetchProjects();
-          setShouldReload(false); // reset o estado
+            fetchProjects();
+            setShouldReload(false); // reset o estado
         }
-      }, [shouldReload]);
+    }, [setShouldReload, shouldReload]);
 
     return (
         <div className="p-6">
@@ -50,21 +50,19 @@ export default function ProjectList() {
                                 <p className="text-gray-400 text-sm">{project.description}</p>
                             </div>
                             <div className="text-sm text-gray-300">
-                                <p>Status: <span className="font-medium text-white">{project.status}</span></p>
-                                <p>Data de criação: {project.creationDate}</p>
-                                <p>Finalizado: {project.finished ? 'Sim' : 'Não'}</p>
+
                             </div>
                         </div>
                     ))}
                 </div>
-                 
+
             )}
             {selectedProject && (
-                    <EditProjectModal
-                      project={selectedProject}
-                      onClose={() => setSelectedProject(null)}
-                    />
-                  )}
+                <EditProjectModal
+                    project={selectedProject}
+                    onClose={() => setSelectedProject(null)}
+                />
+            )}
         </div>
     );
 }
