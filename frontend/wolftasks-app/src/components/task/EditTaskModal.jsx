@@ -1,14 +1,12 @@
 import {useRef, useState} from 'react';
 import api from '../../services/api';
-import {useProjectReload} from '../../contexts/ProjectReloadContext';
 import ModalWrapper from "../general/ModalWrapper.jsx";
 import {useClickOutside} from "../../hooks/useClickOutside.jsx";
 
-export const EditTaskModal = ({task, isOpen, onClose}) => {
+export const EditTaskModal = ({task, isOpen, onClose, onSave}) => {
     const [title, setTitle] = useState(task.title == null ? '' : task.title);
     const [description, setDescription] = useState(task.description == null ? '' : task.description);
     const [status, setStatus] = useState(task.status);
-    const {setShouldReload} = useProjectReload();
     const statusList = [
         {id: 0, title: 'BACKLOG'},
         {id: 1, title: 'TO_DO'},
@@ -24,14 +22,15 @@ export const EditTaskModal = ({task, isOpen, onClose}) => {
             description,
             status
         });
-        setShouldReload(true);
+        if (onSave) {
+            onSave();
+        }
         onClose();
-    }
+    };
 
     const deleteTask = async () => {
         if (confirm("Are you sure?")) {
             await api.delete(`/task/${task.id}`);
-            setShouldReload(true);
             onClose();
         }
     }

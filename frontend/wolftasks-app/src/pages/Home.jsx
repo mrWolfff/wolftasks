@@ -21,10 +21,6 @@ export default function Home() {
             console.error("Erro ao buscar tarefas:", error);
         }
     };
-
-
-
-
     useEffect(() => {
         if (activeTab === 'Tasks') {
             fetchTasks();
@@ -32,7 +28,7 @@ export default function Home() {
     }, [activeTab]);
 
     return (
-        <div className="flex w-screen h-screen bg-gray-900 text-white">
+        <div className="flex w-full h-full min-h-screen h-screen bg-gray-900 text-white">
             <aside className="w-60 bg-gray-800 p-4 flex flex-col border-r border-gray-700">
                 <h2 className="text-xl font-semibold mb-6">Menu</h2>
                 <nav className="flex flex-col space-y-3">
@@ -58,37 +54,30 @@ export default function Home() {
                     Your work / <span className="text-white">{activeTab}</span>
                 </div>
 
-                <main className="flex-1 overflow-y-auto p-6">
-                    {activeTab === 'Dashboard' && (
-
-                        <KanbanBoard />
-
-                    )}
-
-                    {activeTab === 'Projects' && (
-                        <ProjectList />
-                    )}
-
+                <main className="flex-1 overflow-hidden">
+                    {activeTab === 'Dashboard' && <KanbanBoard />}
+                    {activeTab === 'Projects' && <ProjectList />}
                     {activeTab === 'Tasks' && (
-                        tasks.length > 0 ? (
-                            <div className="grid gap-4">
-                                {tasks.map(task => (
-                                    <div
-                                        key={task.id}
-                                        className="p-4 bg-gray-800 rounded shadow hover:shadow-lg transition-all"
-                                    >
-                                        <h3 className="text-lg font-semibold">{task.title}</h3>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="text-gray-400">Nenhuma task encontrada.</p>
-                        )
+                        <div className="p-6 overflow-y-auto h-full">
+                            {tasks.length > 0 ? (
+                                <div className="grid gap-4">
+                                    {tasks.map(task => (
+                                        <div
+                                            key={task.id}
+                                            className="p-4 bg-gray-800 rounded shadow hover:shadow-lg transition-all"
+                                        >
+                                            <h3 className="text-lg font-semibold">{task.title}</h3>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-gray-400">Nenhuma task encontrada.</p>
+                            )}
+                        </div>
                     )}
                 </main>
             </div>
 
-            {/* Modais */}
             <TaskModal
                 isOpen={taskModalOpen}
                 onClose={() => {

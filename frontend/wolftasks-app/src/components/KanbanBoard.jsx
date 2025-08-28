@@ -34,7 +34,7 @@ function DraggableCard({id, children, onTaskClick}) {
             ref={setNodeRef}
             style={style}
             {...attributes}
-            className="bg-gray-600 text-white rounded p-3 shadow hover:shadow-lg hover:scale-[1.02] transition-transform duration-150"
+            className="bg-gray-600 overflow-hidden text-white rounded p-3 shadow hover:shadow-lg hover:scale-[1.02] transition-transform duration-150"
         >
             <div
                 {...listeners}
@@ -45,7 +45,9 @@ function DraggableCard({id, children, onTaskClick}) {
             </div>
 
             <div
-                className="cursor-pointer p-2 hover:bg-gray-700 transition-all duration-200 rounded"
+                className="cursor-pointer min-h-40 max-h-40 hover:bg-gray-700
+             transition-all duration-200 rounded
+             overflow-hidden"
                 onClick={onTaskClick}>
                 {children}
             </div>
@@ -127,7 +129,9 @@ export default function KanbanBoard() {
                     <EditTaskModal
                         task={selectedTask}
                         isOpen={taskModalOpen}
-                        onClose={() => setSelectedTask(null)}/>
+                        onClose={() => setSelectedTask(null)}
+                        onSave={() => searchTasks(selectedTask.projectId)}
+                    />
                 )
             }
             {!selectedProject ? (
@@ -147,18 +151,19 @@ export default function KanbanBoard() {
                 </div>
             ) : (
                 <DndContext onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
-                    <div className="h-screen w-full overflow-x-auto bg-gray-900 text-white">
-                        <div className="flex gap-4 min-w-[1000px] p-4">
+                    <div className="h-full w-full bg-gray-900 text-white">
+                        <div className="flex gap-4 w-full p-4 overflow-y-auto overflow-x-auto">
                             {columns.map((col) => (
                                 <DroppableColumn
                                     key={col.title}
                                     id={col.title}
-                                    className={`flex flex-col w-64 rounded-lg ${col.color} p-4 shadow`}>
+                                    className={`flex flex-col w-80 rounded-lg ${col.color} p-4 shadow 
+                                         max-h-[calc(100vh-8rem)]`}>
                                     <h2 className="text-lg font-semibold mb-4 text-white">
                                         {col.title}
                                     </h2>
 
-                                    <div className="flex flex-col gap-3 min-h-[100px]">
+                                    <div className="flex flex-col gap-3">
                                         {tasks.filter(task => task.status === col.title)
                                             .map((task) => (
                                                 <DraggableCard
