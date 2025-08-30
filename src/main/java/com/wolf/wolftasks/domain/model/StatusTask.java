@@ -6,4 +6,5 @@ public enum StatusTask {
     DOING,
     TESTING,
     FINISHED,
+    CANCELED,
 }

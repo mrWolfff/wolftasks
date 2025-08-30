@@ -13,6 +13,7 @@ export const EditTaskModal = ({task, isOpen, onClose, onSave}) => {
         {id: 2, title: 'DOING'},
         {id: 3, title: 'TESTING'},
         {id: 4, title: 'FINISHED'},
+        {id: 5, title: 'CANCELED'},
     ]
 
     const handleSubmit = async (e) => {
@@ -27,14 +28,6 @@ export const EditTaskModal = ({task, isOpen, onClose, onSave}) => {
         }
         onClose();
     };
-
-    const deleteTask = async () => {
-        if (confirm("Are you sure?")) {
-            await api.delete(`/task/${task.id}`);
-            onClose();
-        }
-    }
-
     const modalRef = useRef(null);
     useClickOutside(modalRef, onClose);
 
@@ -83,15 +76,10 @@ export const EditTaskModal = ({task, isOpen, onClose, onSave}) => {
 
                     </div>
                     <div className={"flex justify-end space-x-2"}>
-                        <button type={"button"}
-                                onClick={deleteTask}
-                                className={"px-4 py-2 bg-red-600 text-white rounded hover:bg-gray-500"}>
-                            Delete
-                        </button>
                         <button
                             type="button"
                             onClick={onClose}
-                            className={"px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"}>Cancel
+                            className={"px-4 py-2 bg-red-600 text-white rounded hover:bg-gray-500"}>Cancel
                         </button>
                         <button type="submit"
                                 className={"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"}> Save

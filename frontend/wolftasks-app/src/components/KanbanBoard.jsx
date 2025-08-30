@@ -55,7 +55,7 @@ function DraggableCard({id, children, onTaskClick}) {
     );
 }
 
-export default function KanbanBoard() {
+export default function KanbanBoard({project} ) {
     const [tasks, setTasks] = useState([]);
     const [taskModalOpen, setTaskModalOpen] = useState(false);
 
@@ -79,8 +79,12 @@ export default function KanbanBoard() {
     };
 
     useEffect(() => {
+        if(project){
+            setProject(project);
+            return;
+        }
         fetchProjects();
-    }, []);
+    }, [project]);
 
     const setProject = (project) => {
         setSelectedProject(project);
@@ -98,10 +102,14 @@ export default function KanbanBoard() {
 
     const updateTaskStatus = async (task, newStatus) => {
         try {
-            await api.put(`/task/${task.id}`, {status: newStatus});
+            await api.put(`/task/${task.id}`, {
+                title: task.title,
+                description: task.description,
+                status: newStatus});
             console.log(`Task ${task.id} updated to ${newStatus}`);
         } catch (error) {
             console.error('Error while updating status:', error);
+        }finally {
             await searchTasks(selectedProject.id);
         }
     };
@@ -136,13 +144,12 @@ export default function KanbanBoard() {
             }
             {!selectedProject ? (
                 <div className="space-y-3">
-                    <p className="text-sm text-gray-400">Select a project:</p>
-                    <div className="grid grid-cols-1 gap-3">
+                    <div className="grid grid-cols-1 gap-3 ">
                         {projects.map((project) => (
                             <button
                                 key={project.id}
                                 onClick={() => setProject(project)}
-                                className="w-full text-left p-4 border rounded-xl bg-gray-800 hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
+                                className="w-full text-left p-4 border rounded-xl bg-gray-800 hover:bg-blue-900 transition-colors"
                             >
                                 <strong>{project.title}</strong>
                             </button>
@@ -152,7 +159,7 @@ export default function KanbanBoard() {
             ) : (
                 <DndContext onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
                     <div className="h-full w-full bg-gray-900 text-white">
-                        <div className="flex gap-4 w-full p-4 overflow-y-auto overflow-x-auto">
+                        <div className="flex gap-4 w-full h-full p-4 overflow-y-auto overflow-x-auto">
                             {columns.map((col) => (
                                 <DroppableColumn
                                     key={col.title}
