@@ -18,9 +18,10 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) // Desabilita CSRF (para testes)
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll() // Permite tudo
+                        .requestMatchers("/api/login", "/user/register").permitAll()
+                        .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults()); // Opcional: habilita auth básica
+                .httpBasic(Customizer.withDefaults());
         return http.build();
     }
 }

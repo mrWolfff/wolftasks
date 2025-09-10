@@ -1,11 +1,13 @@
 package com.wolf.wolftasks.service;
 
+import com.wolf.wolftasks.domain.dto.CreateUserDTO;
 import com.wolf.wolftasks.domain.dto.UserDTO;
 import com.wolf.wolftasks.domain.dto.UpdateUserDTO;
 import com.wolf.wolftasks.domain.model.User;
 import com.wolf.wolftasks.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -18,9 +20,11 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository repository;
+    private final PasswordEncoder encoder;
 
-    public UserService(UserRepository repository) {
+    public UserService(UserRepository repository, PasswordEncoder encoder) {
         this.repository = repository;
+        this.encoder = encoder;
     }
 
     public ResponseEntity<List<UserDTO>> getUsers() {
@@ -37,11 +41,11 @@ public class UserService {
         return ResponseEntity.ok(UserDTO.fromEntity(user));
     }
 
-    public ResponseEntity<UserDTO> createUser(UserDTO dto, UriComponentsBuilder uri) {
-        User user = new User(dto);
-        User savedUser = repository.save(user); // Salvar no Mongo antes de obter o ID
+    public ResponseEntity<CreateUserDTO> createUser(CreateUserDTO dto, UriComponentsBuilder uri) {
+        User user = new User(dto, encoder);
+        User savedUser = repository.save(user);
         URI address = uri.path("/user/{id}").buildAndExpand(savedUser.getId()).toUri();
-        return ResponseEntity.created(address).body(UserDTO.fromEntity(savedUser));
+        return ResponseEntity.created(address).body(CreateUserDTO.fromEntity(savedUser));
     }
 
     public ResponseEntity<Void> deleteUser(String id) {

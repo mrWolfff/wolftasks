@@ -1,5 +1,6 @@
 package com.wolf.wolftasks.controller;
 
+import com.wolf.wolftasks.domain.dto.CreateUserDTO;
 import com.wolf.wolftasks.domain.dto.UpdateUserDTO;
 import com.wolf.wolftasks.domain.dto.UserDTO;
 import com.wolf.wolftasks.service.UserService;
@@ -31,8 +32,8 @@ public class UserController {
         return service.getUser(id);
     }
 
-    @PostMapping
-    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserDTO dto, UriComponentsBuilder uri){
+    @PostMapping("/register")
+    public ResponseEntity<CreateUserDTO> createUser(@Valid @RequestBody CreateUserDTO dto, UriComponentsBuilder uri){
         return service.createUser(dto, uri);
     }
 

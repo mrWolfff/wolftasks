@@ -1,10 +1,15 @@
 package com.wolf.wolftasks.domain.model;
 
+import com.wolf.wolftasks.domain.dto.CreateUserDTO;
 import com.wolf.wolftasks.domain.dto.UserDTO;
+import jakarta.validation.constraints.Email;
+import jakarta.persistence.Column;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +24,8 @@ public class User {
     private String name;
 
     @NotBlank
+    @Column(unique = true, nullable = false)
+    @Email
     private String email;
 
     @NotBlank
@@ -42,6 +49,14 @@ public class User {
     }
 
     public User() {}
+
+    public User(CreateUserDTO dto, PasswordEncoder encoder) {
+        this.name = dto.name();
+        this.email = dto.email();
+        this.password = encoder.encode(dto.password());
+        this.bornDate = dto.bornDate();
+        this.active = true;
+    }
 
     // Getters e Setters
     public String getId() { return id; }

@@ -5,6 +5,7 @@ import {ProjectReloadProvider} from './contexts/ProjectReloadContext.jsx';
 import {AuthProvider} from "./contexts/AuthContext";
 import PrivateRoute from "./pages/PrivateRoute.jsx";
 import Login from "./components/user/Login.jsx";
+import Register from "./components/user/Register.jsx";
 
 export default function App() {
     return (
@@ -12,6 +13,7 @@ export default function App() {
             <BrowserRouter>
                 <Routes>
                     <Route path="/login" element={<Login/>}/>
+                    <Route path="/register" element={<Register/>}/>
                     <Route path="/" element={
                             <PrivateRoute>
                                 <ProjectReloadProvider>
@@ -23,7 +25,5 @@ export default function App() {
                 </Routes>
             </BrowserRouter>
         </AuthProvider>
-
-
     );
 }
