@@ -29,7 +29,7 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         Optional<User> user =  repository.findByEmail(request.email());
         if (user.isPresent() && encoder.matches(request.password(), user.get().getPassword())) {
-            String token = JwtUtil.generateToken(request.email());
+            String token = JwtUtil.generateToken(user.get());
             return ResponseEntity.ok(new LoginResponse(request.email(), token));
         }
         return ResponseEntity.status(401).build();

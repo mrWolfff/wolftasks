@@ -71,7 +71,11 @@ export default function KanbanBoard({project} ) {
     const [selectedTask, setSelectedTask] = useState(null);
     const fetchProjects = async () => {
         try {
-            const res = await api.get('/project');
+            const res = await api.get('/project',{
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
             setProjects(res.data);
         } catch (err) {
             console.error('Erro ao buscar projetos:', err);

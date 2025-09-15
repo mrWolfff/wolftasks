@@ -5,8 +5,11 @@ import KanbanBoard from "../components/KanbanBoard.jsx";
 import TaskModal from '../components/task/TaskModal.jsx';
 import ProjectModal from '../components/project/ProjectModal.jsx';
 import ProjectList from "../components/project/ProjectList.jsx";
+import MyAccount from "../components/user/MyAccount.jsx";
+import { useAuth } from '../contexts/AuthContext.jsx';
 
 export default function Home() {
+    const { logout } = useAuth();
     const [tasks, setTasks] = useState([]);
     const [taskModalOpen, setTaskModalOpen] = useState(false);
     const [projectModalOpen, setProjectModalOpen] = useState(false);
@@ -31,7 +34,11 @@ export default function Home() {
 
     const fetchProjects = async () => {
         try {
-            const res = await api.get('/project');
+            const res = await api.get('/project', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
             setProjects(res.data);
         } catch (err) {
             console.error('Erro ao buscar projetos:', err);
@@ -70,6 +77,27 @@ export default function Home() {
                             )}
                         </div>
                     ))}
+
+                    {/* My Account and Logout options */}
+                    <div className="mt-4 pt-4 border-t border-gray-700">
+                        <button
+                            onClick={() => {
+                                setActiveTab('MyAccount');
+                                setSelectedProject(null);
+                            }}
+                            className={`w-full text-left px-3 py-2 rounded transition 
+                            ${activeTab === 'MyAccount' ? 'bg-gray-700 font-bold' : 'hover:bg-gray-700'}`}
+                        >
+                            My Account
+                        </button>
+
+                        <button
+                            onClick={() => logout()}
+                            className="w-full text-left px-3 py-2 rounded transition text-red-400 hover:bg-gray-700 mt-2"
+                        >
+                            Logout
+                        </button>
+                    </div>
                 </nav>
             </aside>
             <div className="flex-1 flex flex-col">
@@ -108,6 +136,7 @@ export default function Home() {
                             )}
                         </div>
                     )}
+                    {activeTab === 'MyAccount' && <MyAccount />}
                 </main>
             </div>
 

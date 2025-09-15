@@ -37,13 +37,12 @@ export default function Login() {
                  email, password
             });
 
-            if (response.ok) {
-                const data = await response.json();
-                // supondo que a API retorna: { user: {...}, token: "jwt123" }
+            if (response.status === 200) {
+                const data = await response.data;
                 login(data.user, data.token);
                 navigate("/dashboard");
             } else {
-                const errorData = await response.json();
+                const errorData = await response.data;
                 setError(errorData.message || "Invalid login credentials");
             }
         } catch (err) {

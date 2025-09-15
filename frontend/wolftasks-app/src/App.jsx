@@ -14,7 +14,7 @@ export default function App() {
                 <Routes>
                     <Route path="/login" element={<Login/>}/>
                     <Route path="/register" element={<Register/>}/>
-                    <Route path="/" element={
+                    <Route path="/dashboard" element={
                             <PrivateRoute>
                                 <ProjectReloadProvider>
                                     <Home/>

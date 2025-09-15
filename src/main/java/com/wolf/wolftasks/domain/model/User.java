@@ -3,8 +3,8 @@ package com.wolf.wolftasks.domain.model;
 import com.wolf.wolftasks.domain.dto.CreateUserDTO;
 import com.wolf.wolftasks.domain.dto.UserDTO;
 import jakarta.validation.constraints.Email;
-import jakarta.persistence.Column;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import jakarta.validation.constraints.NotBlank;
@@ -24,7 +24,7 @@ public class User {
     private String name;
 
     @NotBlank
-    @Column(unique = true, nullable = false)
+    @Indexed(unique = true)
     @Email
     private String email;
 
