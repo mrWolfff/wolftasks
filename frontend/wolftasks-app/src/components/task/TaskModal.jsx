@@ -14,11 +14,12 @@ export default function TaskModal({ isOpen, onClose, selectedProject }) {
     const [showCreatorModal, setShowCreatorModal] = useState(false);
     const [showResponsibleModal, setShowResponsibleModal] = useState(false);
     const [users, setUsers] = useState([]);
-    const [setSelectedProject] = useState(null);
+    const [projectSelected, setProjectSelected] = useState(null);
     const modalRef = useRef(null);
     const [loading, setLoading] = useState(false);
     const [projects, setProjects] = useState([]);
     const [toast, setToast] = useState(null);
+    const { setShouldReload } = useProjectReload();
 
     useClickOutside(modalRef, onClose);
 
@@ -35,6 +36,8 @@ export default function TaskModal({ isOpen, onClose, selectedProject }) {
                 responsibleId: responsibleId?.id
             });
             setToast({ message: 'Tarefa criada com sucesso!', type: 'success' });
+            // Trigger reload in other components
+            setShouldReload(prev => !prev);
             onClose();
         } catch (error) {
             setToast({

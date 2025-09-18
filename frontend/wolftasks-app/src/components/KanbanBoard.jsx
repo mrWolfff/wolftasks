@@ -3,6 +3,7 @@ import api from '../services/api.js';
 import {DndContext, closestCenter} from '@dnd-kit/core';
 import {useDroppable, useDraggable} from '@dnd-kit/core';
 import {EditTaskModal} from "./task/EditTaskModal.jsx";
+import { useProjectReload } from '../contexts/ProjectReloadContext.jsx';
 
 function DroppableColumn({id, children, className}) {
     const {setNodeRef} = useDroppable({id});
@@ -58,6 +59,7 @@ function DraggableCard({id, children, onTaskClick}) {
 export default function KanbanBoard({project} ) {
     const [tasks, setTasks] = useState([]);
     const [taskModalOpen, setTaskModalOpen] = useState(false);
+    const { shouldReload } = useProjectReload();
 
     const columns = [
         {title: 'BACKLOG', color: 'bg-gray-800'},
@@ -88,7 +90,7 @@ export default function KanbanBoard({project} ) {
             return;
         }
         fetchProjects();
-    }, [project]);
+    }, [project, shouldReload]);
 
     const setProject = (project) => {
         setSelectedProject(project);

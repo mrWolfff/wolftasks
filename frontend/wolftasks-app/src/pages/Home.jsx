@@ -7,9 +7,11 @@ import ProjectModal from '../components/project/ProjectModal.jsx';
 import ProjectList from "../components/project/ProjectList.jsx";
 import MyAccount from "../components/user/MyAccount.jsx";
 import { useAuth } from '../contexts/AuthContext.jsx';
+import { useProjectReload } from '../contexts/ProjectReloadContext.jsx';
 
 export default function Home() {
     const { logout } = useAuth();
+    const { shouldReload } = useProjectReload();
     const [tasks, setTasks] = useState([]);
     const [taskModalOpen, setTaskModalOpen] = useState(false);
     const [projectModalOpen, setProjectModalOpen] = useState(false);
@@ -30,7 +32,7 @@ export default function Home() {
         if (activeTab === 'Tasks') {
             fetchTasks();
         }
-    }, [activeTab]);
+    }, [activeTab, shouldReload]);
 
     const fetchProjects = async () => {
         try {
