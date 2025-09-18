@@ -3,56 +3,57 @@ import com.wolf.wolftasks.domain.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
 
+@Component
 public class JwtUtil {
-    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private static final long EXPIRATION = 1000 * 60 * 60; // 1h
+    private final Key key;
+    private final long expirationMillis;
 
-    public static String generateToken(User user) {
+    public JwtUtil(@Value("${jwt.secret}") String secretBase64,
+                   @Value("${jwt.expiration}") long expirationMillis) {
+        // decodifica a secret base64 e cria a Key (garanta que a secret tem 32+ bytes)
+        byte[] keyBytes = Decoders.BASE64.decode(secretBase64);
+        this.key = Keys.hmacShaKeyFor(keyBytes);
+        this.expirationMillis = expirationMillis;
+    }
+    public String generateToken(User user) {
         return Jwts.builder()
                 .setSubject(String.valueOf(user.getId()))
                 .claim("email", user.getEmail())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .setExpiration(new Date(System.currentTimeMillis() + this.expirationMillis))
+                .signWith(this.key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public static String validateToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+    public String getUserId(String token) {
+        return getClaims(token).getSubject();
     }
 
-    // Extrai id do usuário (subject)
-    public static Long getUserId(String token) {
-        Claims claims = getClaims(token);
-        return Long.parseLong(claims.getSubject());
-    }
-
-    // Extrai roles
-    public static List<String> getRoles(String token) {
+    public List<String> getRoles(String token) {
         Claims claims = getClaims(token);
         return claims.get("roles", List.class);
     }
 
-    // Extrai email (opcional)
-    public static String getEmail(String token) {
-        Claims claims = getClaims(token);
-        return claims.get("email", String.class);
+    public String getEmail(String token) {
+        return getClaims(token).get("email", String.class);
     }
 
-    private static Claims getClaims(String token) {
-        return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
+    private Claims getClaims(String token) {
+        // remove "Bearer " caso venha junto (fazer no filtro também é OK)
+        if (token.startsWith("Bearer ")) token = token.substring(7);
+
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
     }

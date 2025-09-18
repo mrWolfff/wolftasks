@@ -19,30 +19,22 @@ public class AuthController {
     @Autowired
     private final UserRepository repository;
     private final PasswordEncoder encoder;
+    private final JwtUtil jws;
 
-    public AuthController(UserRepository repository, PasswordEncoder encoder) {
+    public AuthController(UserRepository repository, PasswordEncoder encoder, JwtUtil jws) {
         this.repository = repository;
         this.encoder = encoder;
+        this.jws = jws;
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         Optional<User> user =  repository.findByEmail(request.email());
         if (user.isPresent() && encoder.matches(request.password(), user.get().getPassword())) {
-            String token = JwtUtil.generateToken(user.get());
+            String token = jws.generateToken(user.get());
             return ResponseEntity.ok(new LoginResponse(request.email(), token));
         }
         return ResponseEntity.status(401).build();
     }
 
-    @GetMapping("/protected")
-    public ResponseEntity<String> protectedEndpoint(@RequestHeader("Authorization") String authHeader) {
-        try {
-            String token = authHeader.replace("Bearer ", "");
-            String user = JwtUtil.validateToken(token);
-            return ResponseEntity.ok("Olá " + user + ", você acessou um endpoint protegido!");
-        } catch (Exception e) {
-            return ResponseEntity.status(401).body("Token inválido");
-        }
-    }
 }

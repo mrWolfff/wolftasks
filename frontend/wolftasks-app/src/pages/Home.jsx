@@ -146,6 +146,7 @@ export default function Home() {
                     setTaskModalOpen(false);
                     fetchTasks();
                 }}
+                selectedProject={selectedProject}
             />
             <ProjectModal
                 isOpen={projectModalOpen}

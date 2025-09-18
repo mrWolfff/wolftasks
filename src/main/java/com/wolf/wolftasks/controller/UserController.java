@@ -6,11 +6,13 @@ import com.wolf.wolftasks.domain.dto.UserDTO;
 import com.wolf.wolftasks.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RestController
@@ -32,8 +34,15 @@ public class UserController {
         return service.getUser(id);
     }
 
+    @PostMapping("/email")
+    public ResponseEntity<?> getUserByEmail(@RequestBody Map<String, String> body, Authentication auth) {
+        System.out.println("Authentication no controller: " + auth);
+        String email = body.get("email");
+        return service.getUserByEmail(email);
+    }
+
     @PostMapping("/register")
-    public ResponseEntity<CreateUserDTO> createUser(@Valid @RequestBody CreateUserDTO dto, UriComponentsBuilder uri){
+    public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserDTO dto, UriComponentsBuilder uri){
         return service.createUser(dto, uri);
     }
 

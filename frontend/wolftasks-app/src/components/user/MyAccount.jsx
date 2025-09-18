@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import {useState, useEffect} from 'react';
+import {useAuth} from '../../contexts/AuthContext';
 import api from '../../services/api.js';
 
 export default function MyAccount() {
-    const { userEmail, login } = useAuth();
+    const {login} = useAuth();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -11,70 +11,73 @@ export default function MyAccount() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [user, setUser] = useState({});
 
     async function fetchUser(userEmail) {
-        const user = await api.get(`/api/users/${userEmail}`)
+        const res = await api.post(`/user/email`, {email: userEmail});
+        setUser(res.data);
+        setName(res.data.name);
+        setEmail(res.data.email);
     }
 
     useEffect(() => {
-        if (userEmail) {
-            fetchUser(userEmail);
-            setName(user.name);
-            set
-            setEmail(userEmail);
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            const userEmail = JSON.parse(storedUser);
+            fetchUser(userEmail).then(r => console.log(r));
         }
-    }, [userEmail]);
+    }, []);
 
     const validateForm = () => {
         setError('');
-        
+
         if (!name.trim()) {
             setError('Name is required');
             return false;
         }
-        
+
         if (!email.trim()) {
             setError('Email is required');
             return false;
         }
-        
+
         if (password && password.length < 6) {
             setError('Password must be at least 6 characters');
             return false;
         }
-        
+
         if (password && password !== confirmPassword) {
             setError('Passwords do not match');
             return false;
         }
-        
+
         return true;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!validateForm()) return;
-        
+
         setIsLoading(true);
         setSuccess('');
-        
+
         try {
             const userData = {
                 name,
                 email
             };
-            
+
             // Only include password if it was changed
             if (password) {
                 userData.password = password;
             }
-            
+
             const response = await api.put(`/api/users/${user.id}`, userData);
-            
+
             if (response.status === 200) {
                 // Update the user in context with new data
-                const updatedUser = { ...user, name, email };
+                const updatedUser = {...user, name, email};
                 login(updatedUser, localStorage.getItem('token'));
                 setSuccess('Profile updated successfully');
                 setPassword('');
@@ -92,19 +95,19 @@ export default function MyAccount() {
         <div className="p-6 overflow-y-auto h-full">
             <div className="max-w-2xl mx-auto bg-gray-800 rounded-lg shadow-lg p-6">
                 <h2 className="text-2xl font-bold text-white mb-6">My Account</h2>
-                
+
                 {error && (
                     <div className="bg-red-500 text-white p-3 rounded mb-4 text-sm">
                         {error}
                     </div>
                 )}
-                
+
                 {success && (
                     <div className="bg-green-500 text-white p-3 rounded mb-4 text-sm">
                         {success}
                     </div>
                 )}
-                
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
                         <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1">
@@ -119,7 +122,7 @@ export default function MyAccount() {
                             placeholder="Your name"
                         />
                     </div>
-                    
+
                     <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
                             Email Address
@@ -133,7 +136,7 @@ export default function MyAccount() {
                             placeholder="Your email"
                         />
                     </div>
-                    
+
                     <div>
                         <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">
                             New Password (leave blank to keep current)
@@ -147,7 +150,7 @@ export default function MyAccount() {
                             placeholder="New password"
                         />
                     </div>
-                    
+
                     <div>
                         <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-1">
                             Confirm New Password
@@ -161,7 +164,7 @@ export default function MyAccount() {
                             placeholder="Confirm new password"
                         />
                     </div>
-                    
+
                     <div>
                         <button
                             type="submit"

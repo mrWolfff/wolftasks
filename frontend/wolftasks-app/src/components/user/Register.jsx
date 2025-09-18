@@ -53,18 +53,21 @@ export default function Register() {
                 bornDate:""
             });
 
-            if (response.ok) {
-                const data = await response.json();
-                // Assuming the API returns: { user: {...}, token: "jwt123" }
+            if (response.status === 201) {
+                const data = await response.data;
                 login(data.user, data.token);
                 navigate("/dashboard");
             } else {
-                const errorData = await response.json();
+                const errorData = await response.data;
                 setError(errorData.message || "Registration failed");
             }
         } catch (err) {
-            setError("An error occurred. Please try again.");
-            console.error(err);
+            if(err.status === 409){
+                setError(err.response.data.error || "User already exists");
+            }else{
+                setError("An error occurred. Please try again.");
+            }
+            console.error(err.message);
         } finally {
             setIsLoading(false);
         }

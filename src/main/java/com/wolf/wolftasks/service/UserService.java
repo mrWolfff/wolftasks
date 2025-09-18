@@ -14,6 +14,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,11 +39,16 @@ public class UserService {
 
     public ResponseEntity<UserDTO> getUser(String id) {
         User user = repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found!"));
         return ResponseEntity.ok(UserDTO.fromEntity(user));
     }
 
-    public ResponseEntity<CreateUserDTO> createUser(CreateUserDTO dto, UriComponentsBuilder uri) {
+    public ResponseEntity<?> createUser(CreateUserDTO dto, UriComponentsBuilder uri) {
+        Optional<User> existedUser = repository.findByEmail(dto.email());
+        if(existedUser.isPresent()){
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "This email is already used!"));
+        }
         User user = new User(dto, encoder);
         User savedUser = repository.save(user);
         URI address = uri.path("/user/{id}").buildAndExpand(savedUser.getId()).toUri();
@@ -72,4 +79,10 @@ public class UserService {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    public ResponseEntity<?> getUserByEmail(String email) {
+        Optional<User> existedUser = repository.findByEmail(email);
+        if(existedUser.isPresent())
+            return ResponseEntity.ok(UserDTO.fromEntity(existedUser.get()));
+        return ResponseEntity.notFound().build();
+    }
 }

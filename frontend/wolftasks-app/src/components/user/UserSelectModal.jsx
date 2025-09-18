@@ -1,6 +1,6 @@
 import { useClickOutside } from '../../hooks/useClickOutside';
 import { useEffect, useRef, useState } from 'react';
-import {  AnimatePresence } from 'framer-motion';
+import {  AnimatePresence, motion } from 'framer-motion';
 import api from '../../services/api';
 
 export default function UserSelectModal({ isOpen, onClose, onSelect }) {

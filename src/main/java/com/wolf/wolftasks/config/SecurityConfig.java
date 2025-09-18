@@ -30,7 +30,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/login", "/user/register").permitAll()
                         .anyRequest().authenticated()
                 )
-                // adiciona o filtro ANTES do filtro padrão de autenticação
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

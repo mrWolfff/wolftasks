@@ -6,7 +6,7 @@ import { useProjectReload } from '../../contexts/ProjectReloadContext.jsx';
 import ModalWrapper from '../general/ModalWrapper.jsx';
 import Toast from '../general/Toast.jsx';
 
-export default function TaskModal({ isOpen, onClose }) {
+export default function TaskModal({ isOpen, onClose, selectedProject }) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [creatorId, setCreatorId] = useState(null);
@@ -14,11 +14,10 @@ export default function TaskModal({ isOpen, onClose }) {
     const [showCreatorModal, setShowCreatorModal] = useState(false);
     const [showResponsibleModal, setShowResponsibleModal] = useState(false);
     const [users, setUsers] = useState([]);
-    const [selectedProject, setSelectedProject] = useState(null);
+    const [setSelectedProject] = useState(null);
     const modalRef = useRef(null);
     const [loading, setLoading] = useState(false);
     const [projects, setProjects] = useState([]);
-    const { setShouldReload } = useProjectReload();
     const [toast, setToast] = useState(null);
 
     useClickOutside(modalRef, onClose);
@@ -35,13 +34,8 @@ export default function TaskModal({ isOpen, onClose }) {
                 creatorId: creatorId?.id,
                 responsibleId: responsibleId?.id
             });
-
-            onClose();
-            setTitle('');
-            setShouldReload(true);
-            setSelectedProject(null);
             setToast({ message: 'Tarefa criada com sucesso!', type: 'success' });
-
+            onClose();
         } catch (error) {
             setToast({
                 message: error?.response?.data?.message || 'Erro ao criar tarefa.',
